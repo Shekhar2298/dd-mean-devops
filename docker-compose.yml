@@ -1,25 +1,40 @@
-version: '3.8'
+version: "3.8"
 
 services:
   mongo:
-    image: mongo
+    image: mongo:latest
     container_name: mongo
     restart: always
     ports:
       - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
 
   backend:
-    image: YOUR_DOCKERHUB_USERNAME/dd-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: shekhar2298/dd-backend:latest
     container_name: backend
     restart: always
     ports:
       - "5000:5000"
     depends_on:
       - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/dddb
 
   frontend:
-    image: YOUR_DOCKERHUB_USERNAME/dd-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: shekhar2298/dd-frontend:latest
     container_name: frontend
     restart: always
     ports:
       - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
